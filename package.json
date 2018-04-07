@@ -1,0 +1,23 @@
+{
+  "name": "tfjs-yolo-tiny",
+  "version": "0.0.1",
+  "main": "dist/index.bundle.js",
+  "license": "MIT",
+  "peerDependencies": {
+    "@tensorflow/tfjs": "^0.7.x"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.4",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-polyfill": "^6.5.0",
+    "babel-preset-env": "^1.6.1",
+    "webpack": "^4.5.0",
+    "webpack-cli": "^2.0.14"
+  },
+  "scripts": {
+    "build": "webpack",
+    "watch": "webpack --watch"
+  }
+}
