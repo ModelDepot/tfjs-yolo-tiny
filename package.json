@@ -3,6 +3,20 @@
   "version": "0.0.1",
   "main": "dist/index.bundle.js",
   "license": "MIT",
+  "keywords": [
+    "tfjs",
+    "Tensorflow",
+    "Tensorflow.js",
+    "YOLO",
+    "object detection",
+    "machine learning",
+    "deep learning"
+  ],
+  "author": "Mike Shi <hi@michaelshi.me>",
+  "repository" : {
+    "type" : "git",
+    "url" : "https://github.com/ModelDepot/tfjs-yolo-tiny"
+  },
   "peerDependencies": {
     "@tensorflow/tfjs": "^0.7.x"
   },
