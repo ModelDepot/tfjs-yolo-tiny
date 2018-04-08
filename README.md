@@ -10,7 +10,11 @@ can't handle it either).
 
 ## Demo
 
-WILL BE OUT SOON!
+(You can only get so far with 1 FPS)
+
+![yolo person detection](https://github.com/ModelDepot/tfjs-yolo-tiny/raw/master/assets/demo.gif)
+
+LIVE WILL BE OUT SOON!
 
 ## Usage Example
 
