@@ -81,3 +81,40 @@ url | string | See DEFAULT_MODEL_LOCATION | Tiny YOLO Model config path. See [tf
 #### Returns
 
 Returns a `Promise` that can resolve to a `tf.Model`.
+
+# Contributing
+
+PR's are more than welcome! Perf improvement or better test coverage
+are probably the two biggest areas of immediate need. If you have thoughts
+on extensibility as well, feel free to open an issue!
+
+## Install Dependencies
+```
+yarn install
+```
+
+## Run Tests
+
+If you're running tests, make sure to `yarn add @tensorflow/tfjs@0.7.0`
+so that you you don't get tfjs package not found errors. If you're developing,
+make sure to remove tfjs as a dependency, as it'll start using the
+local version of `tfjs` intead of the peer version.
+
+Note: Test coverage is poor, definitely don't rely on them to catch your errors.
+
+```
+yarn test
+```
+
+## Build
+
+```
+yarn build
+```
+
+Or during development, use watch mode, you can use the [demo app](https://github.com/ModelDepot/tfjs-yolo-tiny-demo)
+to test out changes.
+
+```
+yarn watch
+```

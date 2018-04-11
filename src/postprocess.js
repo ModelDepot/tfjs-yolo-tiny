@@ -152,8 +152,8 @@ export function yolo_head(feats, anchors, num_classes) {
   return [ box_xy, box_wh, box_confidence, box_class_probs ];
 }
 
-function box_intersection(a, b) {
-  const w = Math.min(a[3], a[3]) - Math.max(a[1], b[1]);
+export function box_intersection(a, b) {
+  const w = Math.min(a[3], b[3]) - Math.max(a[1], b[1]);
   const h = Math.min(a[2], b[2]) - Math.max(a[0], b[0]);
   if (w < 0 || h < 0) {
     return 0;
@@ -161,11 +161,11 @@ function box_intersection(a, b) {
   return w * h;
 }
 
-function box_union(a, b) {
+export function box_union(a, b) {
   const i = box_intersection(a, b);
-  return (a[3] - a[1]) * (a[2] - 0) + (b[3] - b[1]) * (b[2] - b[0]) - i;
+  return (a[3] - a[1]) * (a[2] - a[0]) + (b[3] - b[1]) * (b[2] - b[0]) - i;
 }
 
-function box_iou(a, b) {
+export function box_iou(a, b) {
   return box_intersection(a, b) / box_union(a, b);
 }

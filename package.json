@@ -1,7 +1,7 @@
 {
   "name": "tfjs-yolo-tiny",
   "description": "YOLO Object detection right in the browser via Tensorflow.js",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "main": "dist/index.bundle.js",
   "license": "MIT",
   "keywords": [
@@ -14,12 +14,12 @@
     "deep learning"
   ],
   "author": "Mike Shi <hi@michaelshi.me>",
-  "repository" : {
-    "type" : "git",
-    "url" : "https://github.com/ModelDepot/tfjs-yolo-tiny"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ModelDepot/tfjs-yolo-tiny"
   },
   "peerDependencies": {
-    "@tensorflow/tfjs": "^0.7.x"
+    "@tensorflow/tfjs": "^0.x"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -28,11 +28,13 @@
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-polyfill": "^6.5.0",
     "babel-preset-env": "^1.6.1",
+    "jest": "^22.4.3",
     "webpack": "^4.5.0",
     "webpack-cli": "^2.0.14"
   },
   "scripts": {
     "build": "webpack",
+    "test": "jest",
     "watch": "webpack --watch"
   }
 }
