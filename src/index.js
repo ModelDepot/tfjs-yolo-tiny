@@ -64,7 +64,7 @@ export default async function yolo(
     iouThreshold,
   );
 
-  const classes_indx_arr = await classes.gather(tf.tensor1d(keep_indx)).data();
+  const classes_indx_arr = await classes.gather(tf.tensor1d(keep_indx, 'int32')).data();
 
   const results = [];
 

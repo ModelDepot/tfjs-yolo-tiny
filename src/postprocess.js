@@ -8,7 +8,6 @@ export const YOLO_ANCHORS = tf.tensor2d([
   [7.88282, 3.52778], [9.77052, 9.16828],
 ]);
 
-// Note: Returns [null] * 3 if all boxes are filtered out
 export async function yolo_filter_boxes(
   boxes,
   box_confidence,
@@ -19,26 +18,18 @@ export async function yolo_filter_boxes(
   const box_classes = tf.argMax(box_scores, -1);
   const box_class_scores = tf.max(box_scores, -1);
 
-  const prediction_mask = tf.greaterEqual(box_class_scores, tf.scalar(threshold));
+  // Many thanks to @jacobgil
+  // Source: https://github.com/ModelDepot/tfjs-yolo-tiny/issues/6#issuecomment-387614801
+  const prediction_mask = tf.greaterEqual(box_class_scores, tf.scalar(threshold)).as1D();
 
-  const mask_arr = await prediction_mask.data();
-
-  const indices_arr = [];
-  for (let i=0; i<mask_arr.length; i++) {
-    const v = mask_arr[i];
-    if (v) {
-      indices_arr.push(i);
-    }
-  }
-
-  if (indices_arr.length == 0) {
-    return [null, null, null];
-  }
-
-  const indices = tf.tensor1d(indices_arr);
+  const N = prediction_mask.size
+  // linspace start/stop is inclusive.
+  const all_indices = tf.linspace(0, N - 1, N).toInt();
+  const neg_indices = tf.zeros([N], 'int32');
+  const indices = tf.where(prediction_mask, all_indices, neg_indices);
 
   return [
-    tf.gather(boxes.reshape([mask_arr.length, 4]), indices),
+    tf.gather(boxes.reshape([N, 4]), indices),
     tf.gather(box_class_scores.flatten(), indices),
     tf.gather(box_classes.flatten(), indices),
   ];
