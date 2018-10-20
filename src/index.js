@@ -1,7 +1,6 @@
 import * as tf from '@tensorflow/tfjs';
 
 import {
-  non_max_suppression,
   yolo_boxes_to_corners,
   yolo_head,
   yolo_filter_boxes,
@@ -11,6 +10,7 @@ import class_names from './coco_classes';
 
 const INPUT_DIM = 416;
 
+const MAX_BOXES = 2048; // TODO: There is a limit to tiny-yolo, need to check the model.
 const DEFAULT_FILTER_BOXES_THRESHOLD = 0.01;
 const DEFAULT_IOU_THRESHOLD = 0.4;
 const DEFAULT_CLASS_PROB_THRESHOLD = 0.4
@@ -28,7 +28,7 @@ export default async function yolo(
   iouThreshold = DEFAULT_IOU_THRESHOLD,
   filterBoxesThreshold = DEFAULT_FILTER_BOXES_THRESHOLD
 ) {
-  const [all_boxes, box_confidence, box_class_probs] = tf.tidy(() => {
+  const outs = tf.tidy(() => { // Keep as one var to dispose easier
     const activation = model.predict(input);
 
     const [box_xy, box_wh, box_confidence, box_class_probs ] =
@@ -36,35 +36,40 @@ export default async function yolo(
 
     const all_boxes = yolo_boxes_to_corners(box_xy, box_wh);
 
-    return [all_boxes, box_confidence, box_class_probs];
+    let [boxes, scores, classes] = yolo_filter_boxes(
+      all_boxes, box_confidence, box_class_probs, filterBoxesThreshold);
+
+    // If all boxes have been filtered out
+    if (boxes == null) {
+      return null;
+    }
+
+    const width = tf.scalar(INPUT_DIM);
+    const height = tf.scalar(INPUT_DIM);
+
+    const image_dims = tf.stack([height, width, height, width]).reshape([1,4]);
+
+    boxes = tf.mul(boxes, image_dims);
+
+    return [boxes, scores, classes];
   });
 
-  let [boxes, scores, classes] = await yolo_filter_boxes(
-    all_boxes, box_confidence, box_class_probs, filterBoxesThreshold);
-
-  // If all boxes have been filtered out
-  if (boxes == null) {
+  if (outs === null) {
     return [];
   }
 
-  const width = tf.scalar(INPUT_DIM);
-  const height = tf.scalar(INPUT_DIM);
+  const [boxes, scores, classes] = outs;
 
-  const image_dims = tf.stack([height, width, height, width]).reshape([1,4]);
+  const indices = await tf.image.nonMaxSuppressionAsync(boxes, scores, MAX_BOXES, iouThreshold)
 
-  boxes = tf.mul(boxes, image_dims);
+  // Pick out data that wasn't filtered out by NMS and put them into
+  // CPU land to pass back to consumer
+  const classes_indx_arr = await classes.gather(indices).data();
+  const keep_scores = await scores.gather(indices).data();
+  const boxes_arr = await boxes.gather(indices).data();
 
-  const [ pre_keep_boxes_arr, scores_arr ] = await Promise.all([
-    boxes.data(), scores.data(),
-  ]);
-
-  const [ keep_indx, boxes_arr, keep_scores ] = non_max_suppression(
-    pre_keep_boxes_arr,
-    scores_arr,
-    iouThreshold,
-  );
-
-  const classes_indx_arr = await classes.gather(tf.tensor1d(keep_indx, 'int32')).data();
+  tf.dispose(outs);
+  indices.dispose();
 
   const results = [];
 
@@ -75,7 +80,12 @@ export default async function yolo(
     }
 
     const className = class_names[class_indx];
-    let [top, left, bottom, right] = boxes_arr[i];
+    let [top, left, bottom, right] = [
+      boxes_arr[4 * i],
+      boxes_arr[4 * i + 1],
+      boxes_arr[4 * i + 2],
+      boxes_arr[4 * i + 3],
+    ];
 
     top = Math.max(0, top);
     left = Math.max(0, left);

@@ -1,14 +1,12 @@
 // Heavily derived from YAD2K (https://github.com/allanzelener/YAD2K)
 import * as tf from '@tensorflow/tfjs';
 
-import class_names from './coco_classes';
-
 export const YOLO_ANCHORS = tf.tensor2d([
   [0.57273, 0.677385], [1.87446, 2.06253], [3.33843, 5.47434],
   [7.88282, 3.52778], [9.77052, 9.16828],
 ]);
 
-export async function yolo_filter_boxes(
+export function yolo_filter_boxes(
   boxes,
   box_confidence,
   box_class_probs,
@@ -57,53 +55,6 @@ export function yolo_boxes_to_corners(box_xy, box_wh) {
     box_maxes.slice([0, 0, 0, 1], size),
     box_maxes.slice([0, 0, 0, 0], size),
   ], 3);
-}
-
-/**
- * Filters/deduplicates overlapping boxes predicted by YOLO. These
- * operations are done on CPU as AFAIK, there is no tfjs way to do it
- * on GPU yet.
- * @param {TypedArray} boxes Bounding box corner data buffer from Tensor
- * @param {TypedArray} scores Box scores data buffer from Tensor
- * @param {Number} iouThreshold IoU cutoff to filter overlapping boxes
- */
-export function non_max_suppression(boxes, scores, iouThreshold) {
-  // Zip together scores, box corners, and index
-  const zipped = [];
-  for (let i=0; i<scores.length; i++) {
-    zipped.push([
-      scores[i], [boxes[4*i], boxes[4*i+1], boxes[4*i+2], boxes[4*i+3]], i,
-    ]);
-  }
-  // Sort by descending order of scores (first index of zipped array)
-  const sorted_boxes = zipped.sort((a, b) => b[0] - a[0]);
-
-  const selected_boxes = [];
-
-  // Greedily go through boxes in descending score order and only
-  // return boxes that are below the IoU threshold.
-  sorted_boxes.forEach(box => {
-    let add = true;
-    for (let i=0; i < selected_boxes.length; i++) {
-      // Compare IoU of zipped[1], since that is the box coordinates arr
-      // TODO: I think there's a bug in this calculation
-      const cur_iou = box_iou(box[1], selected_boxes[i][1]);
-      if (cur_iou > iouThreshold) {
-        add = false;
-        break;
-      }
-    }
-    if (add) {
-      selected_boxes.push(box);
-    }
-  });
-
-  // Return the kept indices and bounding boxes
-  return [
-    selected_boxes.map(e => e[2]),
-    selected_boxes.map(e => e[1]),
-    selected_boxes.map(e => e[0]),
-  ];
 }
 
 // Convert yolo output to bounding box + prob tensors
