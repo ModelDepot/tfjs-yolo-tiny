@@ -45,7 +45,7 @@ boxes.forEach(box => {
 ```
 ## API Docs
 
-### yolo(input, model, classProbThreshold, iouThreshold, filterBoxesThreshold)
+### yolo(input, model, options)
 
 #### Args
 
@@ -53,9 +53,25 @@ Param | Type | Default | Description
 -- | -- | -- | --
 input | tf.Tensor | - | Expected shape (1, 416, 416, 3) Tensor representing input image (RGB 416x416)
 model | tf.Model | - | Tiny YOLO tf.Model
-classProbThreshold | Number | 0.4 | Don't return detections below a certain class probability.
-iouThreshold | Number | 0.4 | Don't return boxes that have more intersection over union than a more likely box. See [non max suppression](https://www.tensorflow.org/api_docs/python/tf/image/non_max_suppression).
-filterBoxesThreshold | Number | 0.01 | Don't return boxes that have a box_prob * class_prob of less than this threshold.
+[options] | Object | See Below | Optional, Additional Configs
+
+If you're using a custom Tiny YOLO model or want to adjust the default
+filtering cutoffs, you may do so by passing an additional options
+object.
+
+Example: `yolo(inputImage, model, { classProbThreshold: 0.8 });`
+
+Option | Type | Default | Description
+-- | -- | -- | --
+| [options.classProbThreshold] | <code>Number</code> | <code>0.4</code> | Filter out classes below a certain threshold |
+| [options.iouThreshold] | <code>Number</code> | <code>0.4</code> | Filter out boxes that have an IoU greater than this threadhold (refer to tf.image.nonMaxSuppression) |
+| [options.filterBoxesThreshold] | <code>Number</code> | <code>0.01</code> | Threshold to filter out box confidence * class confidence |
+| [options.maxBoxes] | <code>Number</code> | <code>2048</code> | Number of max boxes to return, refer to tf.image.nonMaxSuppression. Note: The model itself can only return so many boxes. |
+| [options.yoloAnchors] | <code>tf.Tensor</code> | <code>See src/postprocessing.js</code> | (Advanced) Yolo Anchor Boxes, only needed if retraining on a new dataset |
+| [options.width] | <code>Number</code> | <code>416</code> | (Advanced) If your model's input width is not 416, only if you're using a custom model |
+| [options.height] | <code>Number</code> | <code>416</code> | (Advanced) If your model's input height is not 416, only if you're using a custom model |
+| [options.numClasses] | <code>Number</code> | <code>80</code> | (Advanced) If your model has a different number of classes, only if you're using a custom model |
+| [options.classNames] | <code>Array.&lt;String&gt;</code> | <code>See src/coco_classes.js</code> | (Advanced) If your model has non-MSCOCO class names, only if you're using a custom model |
 
 #### Returns
 

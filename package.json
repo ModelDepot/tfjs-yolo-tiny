@@ -19,7 +19,7 @@
     "url": "https://github.com/ModelDepot/tfjs-yolo-tiny"
   },
   "peerDependencies": {
-    "@tensorflow/tfjs": "^0.x"
+    "@tensorflow/tfjs": "^0.13"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
