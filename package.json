@@ -1,7 +1,7 @@
 {
   "name": "tfjs-yolo-tiny",
   "description": "YOLO Object detection right in the browser via Tensorflow.js",
-  "version": "0.0.5",
+  "version": "1.0.1",
   "main": "dist/index.bundle.js",
   "license": "MIT",
   "keywords": [
