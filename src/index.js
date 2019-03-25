@@ -22,7 +22,7 @@ const DEFAULT_MODEL_LOCATION =
  * @param {String} url Tiny YOLO Model URL
  */
 export async function downloadModel(url = DEFAULT_MODEL_LOCATION) {
-  return await tf.loadModel(url);
+  return await tf.loadLayersModel(url);
 }
 
 /**
